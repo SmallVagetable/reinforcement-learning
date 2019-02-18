@@ -5,7 +5,7 @@ import time
 from snake import SnakeEnv, ModelFreeAgent, TableAgent, eval_game
 from policy_iter import PolicyIteration
 
-
+# 上下文管理器
 @contextmanager
 def timer(name):
     start = time.time()
@@ -20,6 +20,7 @@ class MonteCarlo(object):
 
     def monte_carlo_eval(self, agent, env):
         state = env.reset()
+        # episode是整个从开始到结束的序列
         episode = []
         while True:
             ac = agent.play(state, self.epsilon)
@@ -34,14 +35,13 @@ class MonteCarlo(object):
         for item in reversed(episode):
             return_val = return_val * agent.gamma + item[2]
             value.append((item[0], item[1], return_val))
-        # every visit
+
+        # 累计计算每一个状态行动
         for item in reversed(value):
             agent.value_n[item[0]][item[1]] += 1
-            agent.value_q[item[0]][item[1]] += (item[2] - \
-                                                agent.value_q[item[0]][item[1]]) / \
-                                               agent.value_n[item[0]][item[1]]
-        # first visit
+            agent.value_q[item[0]][item[1]] += (item[2] - agent.value_q[item[0]][item[1]]) / agent.value_n[item[0]][item[1]]
 
+    # 策略提升，这一步和策略迭代是一样的
     def policy_improve(self, agent):
         new_policy = np.zeros_like(agent.pi)
         for i in range(1, agent.s_len):
@@ -52,7 +52,7 @@ class MonteCarlo(object):
             agent.pi = new_policy
             return True
 
-    # monte carlo
+    # monte carlo迭代
     def monte_carlo_opt(self, agent, env):
         for i in range(10):
             for j in range(100):
@@ -61,7 +61,6 @@ class MonteCarlo(object):
 
 
 def monte_carlo_demo():
-    np.random.seed(101)
     env = SnakeEnv(10, [3, 6])
     agent = ModelFreeAgent(env)
     mc = MonteCarlo()
@@ -70,7 +69,6 @@ def monte_carlo_demo():
     print('return_pi={}'.format(eval_game(env, agent)))
     print(agent.pi)
 
-    np.random.seed(101)
     agent2 = TableAgent(env)
     pi_algo = PolicyIteration()
     with timer('Timer PolicyIter'):
@@ -80,7 +78,6 @@ def monte_carlo_demo():
 
 
 def monte_carlo_demo2():
-    np.random.seed(101)
     env = SnakeEnv(10, [3, 6])
     agent = ModelFreeAgent(env)
     mc = MonteCarlo(0.5)

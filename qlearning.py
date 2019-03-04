@@ -34,11 +34,10 @@ class QLearning(object):
             act = agent.play(state, self.epsilon)
             next_state, reward, terminate, _ = env.step(act)
             if prev_act != -1:
+                # qlearning的迭代公式
                 return_val = reward + agent.gamma * (0 if terminate else np.max(agent.value_q[state, :]))
                 agent.value_n[prev_state][prev_act] += 1
-                agent.value_q[prev_state][prev_act] += (return_val - \
-                                                        agent.value_q[prev_state][prev_act]) / \
-                                                       agent.value_n[prev_state][prev_act]
+                agent.value_q[prev_state][prev_act] += (return_val - agent.value_q[prev_state][prev_act]) / agent.value_n[prev_state][prev_act]
 
             prev_act = act
             prev_state = state

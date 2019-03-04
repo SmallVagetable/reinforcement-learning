@@ -8,7 +8,6 @@ policy_0 = [0] * 100
 policy_1 = [1] * 100
 
 
-
 def first_easy():
     sum_opt = 0
     sum_0 = 0

@@ -9,8 +9,8 @@ class SARSA(object):
     def __init__(self, epsilon=0.0):
         self.epsilon = epsilon
 
+    # sarsa的策略评估
     def sarsa_eval(self, agent, env):
-        # sarsa
         state = env.reset()
         prev_state = -1
         prev_act = -1
@@ -18,11 +18,10 @@ class SARSA(object):
             act = agent.play(state, self.epsilon)
             next_state, reward, terminate, _ = env.step(act)
             if prev_act != -1:
+                # SARSA的迭代公式
                 return_val = reward + agent.gamma * (0 if terminate else agent.value_q[state][act])
                 agent.value_n[prev_state][prev_act] += 1
-                agent.value_q[prev_state][prev_act] += (return_val - \
-                                                        agent.value_q[prev_state][prev_act]) / \
-                                                       agent.value_n[prev_state][prev_act]
+                agent.value_q[prev_state][prev_act] += (return_val - agent.value_q[prev_state][prev_act]) / agent.value_n[prev_state][prev_act]
 
             prev_act = act
             prev_state = state
@@ -41,7 +40,7 @@ class SARSA(object):
             agent.pi = new_policy
             return True
 
-    # monte carlo
+    # sarsa
     def sarsa(self, agent, env):
         for i in range(10):
             for j in range(2000):

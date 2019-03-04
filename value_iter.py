@@ -7,6 +7,7 @@ from snake import SnakeEnv, TableAgent, eval_game
 from policy_iter import PolicyIteration
 
 
+# 创建一个上下文管理器
 @contextmanager
 def timer(name):
     start = time.time()
@@ -49,17 +50,27 @@ def value_iteration_demo():
 
 
 class ValueIteration(object):
+
     def value_iteration(self, agent, max_iter=-1):
+        """
+        :param obj agent: 智能体
+        :param int max_iter: 最大迭代数
+        """
         iteration = 0
         while True:
             iteration += 1
+            # 保存算出的值函数
             new_value_pi = np.zeros_like(agent.value_pi)
-            for i in range(1, agent.s_len):  # for each state
+            for i in range(1, agent.s_len):
                 value_sas = []
-                for j in range(0, agent.a_len):  # for each act
+                for j in range(0, agent.a_len):
+                    # 对每一个状态s和行动a，计算值函数
                     value_sa = np.dot(agent.p[j, i, :], agent.r + agent.gamma * agent.value_pi)
                     value_sas.append(value_sa)
+                # 从每个行动中，选出最好的值函数
                 new_value_pi[i] = max(value_sas)
+
+            # 前后2次值函数的变化小于一个阈值，结束
             diff = np.sqrt(np.sum(np.power(agent.value_pi - new_value_pi, 2)))
             if diff < 1e-6:
                 break
@@ -67,10 +78,13 @@ class ValueIteration(object):
                 agent.value_pi = new_value_pi
             if iteration == max_iter:
                 break
+
         print('Iter {} rounds converge'.format(iteration))
         for i in range(1, agent.s_len):
             for j in range(0, agent.a_len):
+                # 计算收敛后值函数的状态-行动值函数
                 agent.value_q[i, j] = np.dot(agent.p[j, i, :], agent.r + agent.gamma * agent.value_pi)
+            # 取出最大的行动
             max_act = np.argmax(agent.value_q[i, :])
             agent.pi[i] = max_act
 
